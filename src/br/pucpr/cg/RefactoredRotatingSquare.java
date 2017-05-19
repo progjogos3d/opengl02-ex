@@ -17,7 +17,7 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 /**
- * Essa classe demonstra como desenhar um triangulo na tela utilizando a OpenGL.
+ * Exercicio b) da aula 2
  */
 public class RefactoredRotatingSquare implements Scene {
 	private Keyboard keys = Keyboard.getInstance();

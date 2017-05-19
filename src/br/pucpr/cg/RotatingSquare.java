@@ -16,8 +16,9 @@ import org.lwjgl.BufferUtils;
 import java.nio.FloatBuffer;
 
 /**
- * Essa classe demonstra como desenhar um triangulo na tela utilizando a OpenGL.
+ * Exercicio a) da aula 2
  */
+
 public class RotatingSquare implements Scene {
 	private Keyboard keys = Keyboard.getInstance();
 

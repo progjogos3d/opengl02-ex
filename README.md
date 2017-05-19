@@ -5,8 +5,8 @@ Essa aula possui a resolução do exercício da aula 2. O exercício solicitava 
 
 A resolucão está em duas classes:
 
-- RotatingSquare.java: Que possui apenas o quadrado girando, sem a criação das funções
-- RefactoredRotatingSquare: Já com as funções evitando duplicação de código
+- RotatingSquare.java: Que possui apenas o quadrado girando, sem a criação das funções (exercício a) 
+- RefactoredRotatingSquare: Já com as funções evitando duplicação de código (exercício b)
 
 No exercício é criado o index buffer, através do código
  
