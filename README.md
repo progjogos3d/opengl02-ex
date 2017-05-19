@@ -24,8 +24,9 @@ glBindVertexArray(0);
 ```
 
 Note que isso também muda a rotina de desenho. Agora, no lugar da função `glDrawArrays` a função `glDrawElements` deverá 
-ser chamada:
+ser chamada, juntamente com o bind do index buffer:
 
 ```java
+glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices);
 glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 ```
