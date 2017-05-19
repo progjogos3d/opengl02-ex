@@ -17,8 +17,10 @@ import java.nio.FloatBuffer;
 
 /**
  * Exercicio a) da aula 2
+ *
+ * Alteração do código final da aula para desenhar um quadrado colorido. Utiliza index buffer para evitar a duplicação
+ * de vértices.
  */
-
 public class RotatingSquare implements Scene {
 	private Keyboard keys = Keyboard.getInstance();
 

@@ -18,6 +18,8 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 /**
  * Exercicio b) da aula 2
+ *
+ * Melhoria do código da classe RotatingSquare criando as funções createBuffer, createIndexBuffer e setAttribute.
  */
 public class RefactoredRotatingSquare implements Scene {
 	private Keyboard keys = Keyboard.getInstance();
