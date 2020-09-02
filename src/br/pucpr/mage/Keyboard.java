@@ -1,10 +1,10 @@
 package br.pucpr.mage;
 
-import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
-import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
-
 import java.util.HashSet;
 import java.util.Set;
+
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 
 public class Keyboard  {
     private static Keyboard INSTANCE = new Keyboard();

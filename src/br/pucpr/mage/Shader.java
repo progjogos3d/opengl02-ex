@@ -1,26 +1,35 @@
 package br.pucpr.mage;
 
+import java.io.*;
+
 import static org.lwjgl.opengl.GL11.GL_FALSE;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL32.GL_GEOMETRY_SHADER;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 /**
  * Classe para trabalhar com shaders.
  */
 public class Shader {
+    private static InputStream findInputStream(String name) {
+        try {
+            var resource = Shader.class.getResourceAsStream("/br/pucpr/resource/" + name);
+            if (resource != null) {
+                return resource;
+            }
+            return new FileInputStream(name);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * Le o conteúdo de um arquivo e carrega em uma String
      * @param is Um InputStream apontando para o arquivo
      * @return Um texto com o conteúdo do arquivo
      */
     private static String readInputStream(InputStream is) {
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(is))){
-            StringBuilder sb = new StringBuilder();
+        try (var br = new BufferedReader(new InputStreamReader(is))){
+            var sb = new StringBuilder();
             String line;
             while ((line = br.readLine()) != null) {
                 sb.append(line).append("\n");
@@ -40,12 +49,12 @@ public class Shader {
      * @throws RuntimeException Caso o código contenha erros.
      */
     private static int compileShader(int type, String code) {
-        int shader = glCreateShader(type);
+        var shader = glCreateShader(type);
         glShaderSource(shader, code);
         glCompileShader(shader);
 
         if (glGetShaderi(shader, GL_COMPILE_STATUS) == GL_FALSE) {
-            String typeStr = type == GL_VERTEX_SHADER ? "vertex" : type == GL_FRAGMENT_SHADER ? "fragment" : "geometry";
+            var typeStr = type == GL_VERTEX_SHADER ? "vertex" : (type == GL_FRAGMENT_SHADER ? "fragment" : "geometry");
             throw new RuntimeException("Unable to compile " + typeStr + " shader." + glGetShaderInfoLog(shader));
         }
         return shader;
@@ -57,8 +66,6 @@ public class Shader {
      * @return O shader compilado.
      */
     private static int loadShader(String name) {
-        name = "/br/pucpr/resource/" + name.toLowerCase();
-
         //Associa o tipo do shader de acordo com a extensão
         int type;
         if (name.endsWith(".vert") || name.endsWith(".vs"))
@@ -70,7 +77,7 @@ public class Shader {
         else throw new IllegalArgumentException("Invalid shader name: " + name);
 
         //Carrega o shader do disco
-        String code = readInputStream(Shader.class.getResourceAsStream(name));
+        var code = readInputStream(findInputStream(name));
 
         //Compila o shader
         return compileShader(type, code);
@@ -84,8 +91,8 @@ public class Shader {
      * @throws RuntimeException Caso algum erro de link ocorra.
      */
     private static int linkProgram(int... shaders) {
-        int program = glCreateProgram();
-        for (int shader : shaders) {
+        var program = glCreateProgram();
+        for (var shader : shaders) {
             glAttachShader(program, shader);
         }
 
@@ -94,7 +101,7 @@ public class Shader {
             throw new RuntimeException("Unable to link shaders." + glGetProgramInfoLog(program));
         }
 
-        for (int shader : shaders) {
+        for (var shader : shaders) {
             glDetachShader(program, shader);
             glDeleteShader(shader);
         }
@@ -109,8 +116,12 @@ public class Shader {
      * @throws RuntimeException Caso um erro de compilação ou link ocorra.
      */
     public static int loadProgram(String ...shaders) {
-        int[] ids = new int[shaders.length];
-        for (int i = 0; i < shaders.length; i++) {
+        if (shaders.length == 1) {
+            shaders = new String[] {shaders[0] + ".vert", shaders[0] + ".frag"};
+        }
+
+        var ids = new int[shaders.length];
+        for (var i = 0; i < shaders.length; i++) {
             ids[i] = loadShader(shaders[i]);
         }
         return linkProgram(ids);

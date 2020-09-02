@@ -6,6 +6,7 @@ import br.pucpr.mage.Shader;
 import br.pucpr.mage.Window;
 import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
+import org.lwjgl.system.MemoryStack;
 
 import java.nio.FloatBuffer;
 
@@ -27,16 +28,6 @@ public class RefactoredRotatingSquare implements Scene {
 	/** Esta variável guarda o identificador da malha (Vertex Array Object) do triângulo */
 	private int vao;
 
-
-	/** Guarda o id do buffer com todas as posições do vértice. */
-	private int positions;
-
-	/** Guarda o id do buffer com todas as cores do vértice */
-	private int colors;
-
-	/** Guarda o id do index buffer */
-	private int indices;
-
 	/** Guarda o id do shader program, após compilado e linkado */
 	private int shader;
 
@@ -49,28 +40,46 @@ public class RefactoredRotatingSquare implements Scene {
 	 * @return O id do buffer criado
 	 */
 	private int createBuffer(float ... data) {
-		int id = glGenBuffers();
+		var id = glGenBuffers();
 		glBindBuffer(GL_ARRAY_BUFFER, id);
 		glBufferData(GL_ARRAY_BUFFER, data, GL_STATIC_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
 		return id;
 	}
 	/**
 	 * Cria um ELEMENT_ARRAY_BUFFER com os floats passados por parâmetro
-	 * @param indices Os índices
+	 * @param indexData Os índices
 	 * @return O id do buffer criado
 	 */
 	private int createIndexBuffer(int ... indexData) {
-		int id = glGenBuffers();
+		var id = glGenBuffers();
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexData, GL_STATIC_DRAW);
-		glBindVertexArray(0);
+		return id;
+	}
+
+	/**
+	 * Associa uma variável de atributo do shader a um buffer
+	 * @param shader Shader que contém o atributo
+	 * @param attribute Nome do atributo
+	 * @param buffer Buffer a ser associado
+	 * @param size Tamanho do elemento do buffer
+	 * @return O id do atributo habilitado
+	 */
+	public int setAttribute(int shader, String attribute, int buffer, int size) {
+		int id = glGetAttribLocation(shader, attribute);
+		glBindBuffer(GL_ARRAY_BUFFER, buffer);
+		glVertexAttribPointer(id, size, GL_FLOAT, false, 0, 0);
+		glEnableVertexAttribArray(id);
 		return id;
 	}
 
 	@Override
 	public void init() {
+		//------------------------------
+		//Carga/Compilação dos shaders
+		//------------------------------
+		shader = Shader.loadProgram("basic");
+
 		//Define a cor de limpeza da tela
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -90,31 +99,40 @@ public class RefactoredRotatingSquare implements Scene {
 
 		//Criação do buffer de posições
 		//------------------------------
-		positions = createBuffer(
+		var positions = createBuffer(
 			-0.5f,  0.5f,   //Vertice 0
 			 0.5f,  0.5f,   //Vertice 1
 			-0.5f, -0.5f,   //Vertice 2
 			 0.5f, -0.5f    //Vertice 3
 		);
 
+		//Associação do buffer positions a variável aPosition
+		//---------------------------------------------------
+		setAttribute(shader,"aPosition", positions, 2);
+
+		//Associação do buffer cores a variável aColor
+		//---------------------------------------------------
+
+
 		//Criação do buffer de cores
 		//------------------------------
-		colors = createBuffer(
+		var colors = createBuffer(
 			1.0f, 0.0f, 0.0f, //Vertice 0
 			1.0f, 1.0f, 1.0f, //Vertice 1
 			0.0f, 1.0f, 0.0f, //Vertice 2
 			0.0f, 0.0f, 1.0f  //Vertice 3
 		);
+		setAttribute(shader,"aColor", colors, 3);
 
-		indices = createIndexBuffer(
+		createIndexBuffer(
 			0, 2, 3,   //Vertices do primeiro triangulo
 			0, 3, 1    //Segundo triangulo
 		);
 
-		//------------------------------
-		//Carga/Compilação dos shaders
-		//------------------------------
-		shader = Shader.loadProgram("basic.vert", "basic.frag");
+		//Faxina
+		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 
 	@Override
@@ -130,20 +148,7 @@ public class RefactoredRotatingSquare implements Scene {
 		angle += Math.toRadians(180) * secs;
 	}
 
-	/**
-	 * Associa uma variável de atributo do shader a um buffer
-	 * @param attribute Nome do atributo
-	 * @param buffer Buffer a ser associado
-	 * @param size Tamanho do elemento do buffer
-	 * @return O id do atributo habilitado
-	 */
-	public int setAttribute(String attribute, int buffer, int size) {
-		int id = glGetAttribLocation(shader, attribute);
-		glEnableVertexAttribArray(id);
-		glBindBuffer(GL_ARRAY_BUFFER, buffer);
-		glVertexAttribPointer(id, size, GL_FLOAT, false, 0, 0);
-		return id;
-	}
+
 
 	@Override
 	public void draw() {
@@ -160,31 +165,23 @@ public class RefactoredRotatingSquare implements Scene {
 		//Associação da variável World ao shader
 		//--------------------------------------
 		//Criamos um objeto da classe FloatBuffer
-		FloatBuffer transform = BufferUtils.createFloatBuffer(16);
-		new Matrix4f().rotateY(angle).get(transform);
-		int uWorld = glGetUniformLocation(shader, "uWorld");
-		glUniformMatrix4fv(uWorld, false, transform);
+		try (MemoryStack stack = MemoryStack.stackPush()) {
+			//Criamos uma matriz de rotação e a enviamos para o buffer transform
+			FloatBuffer transform = new Matrix4f()
+					.rotateY(angle)
+					.get(stack.mallocFloat(16));
 
+			//Procuramos pelo id da variável uWorld, dentro do shader
+			int uWorld = glGetUniformLocation(shader, "uWorld");
 
-		//Associação do buffer positions a variável aPosition
-		//---------------------------------------------------
-		int aPosition = setAttribute("aPosition", positions, 2);
-
-		//Associação do buffer cores a variável aColor
-		//---------------------------------------------------
-		int aColor = setAttribute("aColor", colors, 3);
-
-		//Indices
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices);
+			// Copiamos os dados do buffer para a variável que está no shader
+			glUniformMatrix4fv(uWorld, false, transform);
+		}
 
 		//Comandamos a pintura com indicando que 6 índices serão desenhados
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		//Faxina
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-		glDisableVertexAttribArray(aPosition);
-		glDisableVertexAttribArray(aColor);
 		glBindVertexArray(0);
 		glUseProgram(0);
 	}
