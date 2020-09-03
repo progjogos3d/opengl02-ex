@@ -139,14 +139,14 @@ public class RotatingSquare implements Scene {
 		//Associação da variável World ao shader
 		//--------------------------------------
 		//Criamos um objeto da classe FloatBuffer
-		try (MemoryStack stack = MemoryStack.stackPush()) {
+		try (var stack = MemoryStack.stackPush()) {
 			//Criamos uma matriz de rotação e a enviamos para o buffer transform
-			FloatBuffer transform = new Matrix4f()
+			var transform = new Matrix4f()
 					.rotateY(angle)
 					.get(stack.mallocFloat(16));
 
 			//Procuramos pelo id da variável uWorld, dentro do shader
-			int uWorld = glGetUniformLocation(shader, "uWorld");
+			var uWorld = glGetUniformLocation(shader, "uWorld");
 
 			// Copiamos os dados do buffer para a variável que está no shader
 			glUniformMatrix4fv(uWorld, false, transform);
