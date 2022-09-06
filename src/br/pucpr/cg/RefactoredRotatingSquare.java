@@ -75,13 +75,26 @@ public class RefactoredRotatingSquare implements Scene {
 
 	@Override
 	public void init() {
+		//---------------------------------
+		//Configurações iniciais
+		//---------------------------------
+
+		//Habilita o teste de profundidade
+		glEnable(GL_DEPTH_TEST);
+
+		//Impede o desenho quando os triângulos estiverem de costas
+		glEnable(GL_CULL_FACE);
+
+		//Descomente para desenhar só as bordas do triângulo
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+		//Define a cor de limpeza da tela
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
 		//------------------------------
 		//Carga/Compilação dos shaders
 		//------------------------------
 		shader = Shader.loadProgram("basic");
-
-		//Define a cor de limpeza da tela
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 		//------------------
 		//Criação da malha
@@ -153,7 +166,7 @@ public class RefactoredRotatingSquare implements Scene {
 	@Override
 	public void draw() {
 		//Solicita a limpeza da tela
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//Precisamos dizer qual VAO iremos desenhar
 		glBindVertexArray(vao);

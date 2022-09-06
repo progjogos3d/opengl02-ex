@@ -36,6 +36,19 @@ public class RotatingSquare implements Scene {
 
 	@Override
 	public void init() {
+		//---------------------------------
+		//Configurações iniciais
+		//---------------------------------
+
+		//Habilita o teste de profundidade
+		glEnable(GL_DEPTH_TEST);
+
+		//Impede o desenho quando os triângulos estiverem de costas
+		glEnable(GL_CULL_FACE);
+
+		//Descomente para desenhar só as bordas do triângulo
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
 		//Define a cor de limpeza da tela
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -60,10 +73,10 @@ public class RotatingSquare implements Scene {
 		//Criação do buffer de posições
 		//------------------------------
 		var vertexData = new float[] {
-				-0.5f,  0.5f,   //Vertice 0
-				 0.5f,  0.5f,   //Vertice 1
-				-0.5f, -0.5f,   //Vertice 2
-				 0.5f, -0.5f    //Vertice 3
+			-0.5f,  0.5f,   //Vertice 0
+			 0.5f,  0.5f,   //Vertice 1
+			-0.5f, -0.5f,   //Vertice 2
+			 0.5f, -0.5f    //Vertice 3
 		};
 
 		//Solicitamos a criação de um buffer na OpenGL, onde esse array será guardado
@@ -80,10 +93,10 @@ public class RotatingSquare implements Scene {
 		//Criação do buffer de cores
 		//------------------------------
 		var colorData = new float[] {
-				1.0f, 0.0f, 0.0f, //Vertice 0
-				1.0f, 1.0f, 1.0f, //Vertice 1
-				0.0f, 1.0f, 0.0f, //Vertice 2
-				0.0f, 0.0f, 1.0f, //Vertice 3
+			1.0f, 0.0f, 0.0f, //Vertice 0
+			1.0f, 1.0f, 1.0f, //Vertice 1
+			0.0f, 1.0f, 0.0f, //Vertice 2
+			0.0f, 0.0f, 1.0f, //Vertice 3
 		};
 		var colors = glGenBuffers();
 		glBindBuffer(GL_ARRAY_BUFFER, colors);
@@ -97,8 +110,8 @@ public class RotatingSquare implements Scene {
 
 		//Criação do Index Buffer
 		var indexData = new int[] {
-				0, 2, 3,   //Vertices do primeiro triangulo
-				0, 3, 1    //Segundo triangulo
+			0, 2, 3,   //Vertices do primeiro triangulo
+			0, 3, 1    //Segundo triangulo
 		};
 
 		var indices = glGenBuffers();
@@ -127,7 +140,7 @@ public class RotatingSquare implements Scene {
 	@Override
 	public void draw() {
 		//Solicita a limpeza da tela
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//Precisamos dizer qual VAO iremos desenhar
 		glBindVertexArray(vao);
