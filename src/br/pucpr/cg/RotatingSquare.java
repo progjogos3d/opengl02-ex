@@ -70,8 +70,9 @@ public class RotatingSquare implements Scene {
 		//Informamos a OpenGL que iremos trabalhar com esse VAO
 		glBindVertexArray(vao);
 
-		//Criação do buffer de posições
-		//------------------------------
+		//Criação do buffer de posições    v0 --- v1
+		//------------------------------   |       |
+		//								   v2 --- v3
 		var vertexData = new float[] {
 			-0.5f,  0.5f,   //Vertice 0
 			 0.5f,  0.5f,   //Vertice 1
@@ -108,7 +109,9 @@ public class RotatingSquare implements Scene {
 		glVertexAttribPointer(aColor, 3, GL_FLOAT, false, 0, 0);
 		glEnableVertexAttribArray(aColor);
 
-		//Criação do Index Buffer
+		//Criação do Index Buffer    v0 --- v1
+		//-----------------------     |     |
+		//							 v2 --- v3
 		var indexData = new int[] {
 			0, 2, 3,   //Vertices do primeiro triangulo
 			0, 3, 1    //Segundo triangulo

@@ -110,8 +110,9 @@ public class RefactoredRotatingSquare implements Scene {
 		glBindVertexArray(vao);
 
 
-		//Criação do buffer de posições
-		//------------------------------
+		//Criação do buffer de posições    v0 --- v1
+		//------------------------------   |       |
+		//								   v2 --- v3
 		var positions = createBuffer(
 			-0.5f,  0.5f,   //Vertice 0
 			 0.5f,  0.5f,   //Vertice 1
@@ -123,10 +124,6 @@ public class RefactoredRotatingSquare implements Scene {
 		//---------------------------------------------------
 		setAttribute(shader,"aPosition", positions, 2);
 
-		//Associação do buffer cores a variável aColor
-		//---------------------------------------------------
-
-
 		//Criação do buffer de cores
 		//------------------------------
 		var colors = createBuffer(
@@ -135,8 +132,14 @@ public class RefactoredRotatingSquare implements Scene {
 			0.0f, 1.0f, 0.0f, //Vertice 2
 			0.0f, 0.0f, 1.0f  //Vertice 3
 		);
+
+		//Associação do buffer cores a variável aColor
+		//---------------------------------------------------
 		setAttribute(shader,"aColor", colors, 3);
 
+		//Criação do Index Buffer    v0 --- v1
+		//-----------------------     |     |
+		//							 v2 --- v3
 		createIndexBuffer(
 			0, 2, 3,   //Vertices do primeiro triangulo
 			0, 3, 1    //Segundo triangulo
@@ -160,8 +163,6 @@ public class RefactoredRotatingSquare implements Scene {
 		//Somamos alguns graus de modo que o angulo mude 180 graus por segundo
 		angle += Math.toRadians(180) * secs;
 	}
-
-
 
 	@Override
 	public void draw() {
